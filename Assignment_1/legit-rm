@@ -1,0 +1,94 @@
+#!/bin/dash
+
+if test $# -eq 0;then
+	echo "usage: legit-rm [--force] [--cached] <filenames>"
+	exit
+fi
+
+
+#legit-rm files
+if test $1 != "--force" -a $1 != "--cached";then
+	for file in $@;do
+		#check the file in working
+		if [ -f $file ];then
+			#check the file in index
+			if [ ! -f ".legit/index/$file" ];then
+				echo "legit-rm: error: '$file' is not in the legit repository"
+				exit
+			fi
+			#check the file change stage in index to commit or not
+			f=`find .legit/commit/ -maxdepth 1 -type d -print|wc -l`
+			f=$(( f-2 ))
+			if [ ! -f ".legit/commit/$f/$file" ];then
+				echo "legit-rm: error: '$file' has changes staged in the index"
+				exit
+			else
+				dif=`cat "$file"`
+				dif2=`cat ".legit/index/$file"`
+				dif3=`cat ".legit/commit/$f/$file"`
+				if [ "$dif2" != "$dif3" -a "$dif2" != "$dif" ];then
+					echo "legit-rm: error: '$file' in index is different to both working file and repository"
+					exit
+				elif [ "$dif" != "$dif2" ];then
+					echo "legit-rm: error: '$file' in repository is different to working file"
+					exit
+				elif [ "$dif" != "$dif3" ];then
+					echo "legit-rm: error: '$file' has changes staged in the index"
+					exit
+				fi
+			fi
+
+			rm $file
+			rm ".legit/index/$file"
+		fi
+	done
+
+#legit-rm --force files
+elif test $1 = "--force" -a $2 != "--cached";then
+	for file in $@;do
+		if test $file != "--force";then
+			if [ -f $file ];then
+        #check the file in index
+        if [ ! -f ".legit/index/$file" ];then
+          echo "legit-rm: error: '$file' is not in the legit repository"
+          exit
+        fi
+				rm $file
+				rm ".legit/index/$file"
+			fi
+		fi
+	done
+
+#legit-rm --cached files
+elif test $1 = "--cached";then
+	for file in $@;do
+		if test $file != "--cached";then
+      #check the file in index
+      if [ ! -f ".legit/index/$file" ];then
+        echo "legit-rm: error: '$file' is not in the legit repository"
+        exit
+      fi
+      #check the file change stage in index to commit or not
+      f=`find .legit/commit/ -maxdepth 1 -type d -print|wc -l`
+      f=$(( f-2 ))
+      if [ -f ".legit/commit/$f/$file" ];then
+        dif=`cat "$file"`
+        dif2=`cat ".legit/index/$file"`
+        dif3=`cat ".legit/commit/$f/$file"`
+        if [ "$dif2" != "$dif3" -a "$dif2" != "$dif" ];then
+          echo "legit-rm: error: '$file' in index is different to both working file and repository"
+          exit
+        fi
+      fi
+      rm ".legit/index/$file"
+		fi
+	done
+
+#legit-rm --foce --cached files
+elif test $1 = "--force" -a $2 = "--cached";then
+	for file in $@;do
+		if test $file != "--force" -a $file != "--cached";then
+				rm ".legit/index/$file"
+		fi
+	done
+fi

@@ -1,0 +1,5 @@
+Date      start.       Stop.       Activity.      Comments
+10/07/19. 18:00.       20:00.      Reading.       Go through the assignment specification and lecture recording, make sure to well known what I need to do.
+11/07/19  18:00.       20:00.      Subset 0,1      Finish coding subset 0 and 1
+12/07/19. 18:00.       20:00.      Subset 2.       Finish coding subset 2
+13/07/19. 18:00.       20:00.      Test script.    Finish the test script

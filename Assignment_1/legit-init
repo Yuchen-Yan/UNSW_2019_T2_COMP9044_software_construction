@@ -1,0 +1,14 @@
+#!/bin/dash
+
+#if the .legit already exists
+if [ -d ".legit" ];then
+  echo "legit-init: error: .legit already exists"
+else
+#mkdir the directory and files need to be used
+  mkdir ".legit"
+  mkdir ".legit/index"
+	mkdir ".legit/commit"
+	mkdir ".legit/branch"
+	touch ".legit/log.txt"
+  echo "Initialized empty legit repository in .legit"
+fi

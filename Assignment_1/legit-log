@@ -1,0 +1,4 @@
+#!/bin/dash
+
+#creat a log.txt to contain logs, the log will be updated during the following actions. 
+cat ".legit/log.txt"

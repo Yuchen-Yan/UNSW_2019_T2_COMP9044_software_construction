@@ -1,0 +1,64 @@
+#!/bin/dash
+
+#the command line arguments must be 3 or 4, including the file name
+if test $# -ne 2 -a $# -ne 3;then
+	echo "usage: legit-commit [-a] -m commit-message"
+#if -a and -m
+elif test $# -eq 3;then
+	if test "$1" != "-a" -o "$2" != "-m";then
+		echo "usage: legit-commit [-a] -m commit-message"
+	else 
+		#renew the index
+		for file in ".legit/index/"*;do
+			f=`echo $file| cut -d'/' -f3`
+			cp $f ".legit/index"
+		done
+		num=`find .legit/commit/ -maxdepth 1 -type d -print|wc -l`
+		num=$(( num-1 ))
+		#if nothing to commit error
+		if test $num -ne 0;then
+			n=$(( num-1 ))
+			check=`diff -q .legit/index .legit/commit/$n`
+			if test "$check" = "";then
+				echo "nothing to commit"
+				exit
+			fi
+		fi
+		name="$num $3"
+		#make the commitment
+		mkdir ".legit/commit/$num"
+		for file in ".legit/index/"*;do
+			cp $file ".legit/commit/$num"
+		done
+		echo $name | cat - ".legit/log.txt" > temp && mv temp ".legit/log.txt"
+		echo "Committed as commit $num" 
+	fi
+
+#if only -m
+else
+	if test "$1" != "-m";then
+		echo "usage: legit-commit [-a] -m commit-message"
+	else 
+		num=`find .legit/commit/ -maxdepth 1 -type d -print|wc -l`
+		num=$(( num-1 ))
+		#if nothing to commit error
+		if test $num -ne 0;then
+			n=$(( num-1 ))
+			check=`diff -q .legit/index .legit/commit/$n`
+			if test "$check" = "";then
+				echo "nothing to commit"
+				exit
+			fi
+		fi
+		name="$num $2"
+		#make the commitment
+		mkdir ".legit/commit/$num"
+		for file in ".legit/index/"*;do
+			if [ -f $file ];then
+				cp "$file" ".legit/commit/$num"
+			fi
+		done
+		echo "$name" | cat - ".legit/log.txt" > temp && mv temp ".legit/log.txt"
+		echo "Committed as commit $num" 
+	fi
+fi 

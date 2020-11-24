@@ -1,0 +1,88 @@
+#!/bin/dash
+
+#renew a status.txt file
+if [ -f ".legit/status.txt" ];then
+  rm ".legit/status.txt"
+fi
+touch ".legit/status.txt"
+
+#get all the files
+for f in *;do
+  if test $f != "legit-init" -a $f != "legit-add" -a $f != "legit-branch"\
+   -a $f != "legit-checkout" -a $f != "legit-commit" -a $f != "legit-log" \
+   -a $f != "legit-merge" -a $f != "legit-rm" -a $f != "legit-show"\
+   -a $f != "legit-status" -a $f != "diary.txt";then
+     if test $f != "*";then
+       echo $f >> ".legit/status.txt"
+     fi
+  fi
+done
+
+ls ".legit/index" >> ".legit/status.txt"
+
+commits=`find .legit/commit/ -maxdepth 1 -type d -print|wc -l`
+if test $commits -eq 1;then
+  continue
+else
+  commits=$(( commits-2 ))
+  ls ".legit/commit/$commits/$d" >> ".legit/status.txt"
+fi
+
+files=`cat ".legit/status.txt" | sort | uniq`
+echo "$files" > ".legit/status.txt"
+#get the file status
+
+#if the status file is emptys
+if test "$files" = "";then
+  exit
+fi
+#echo the file status when different situations
+while IFS= read -r f
+do
+  if test "$commits" -ge 0;then
+    if [ -f "$f" -a ! -f ".legit/index/$f" ];then
+      echo "$f - untracked"
+    elif [ -f "$f" -a -f ".legit/index/$f" -a -f ".legit/commit/$commits/$f" ];then
+      dif=`cat "$f"`
+      dif1=`cat ".legit/index/$f"`
+      dif2=`cat ".legit/commit/$commits/$f"`
+      if [ "$dif" = "$dif1" -a "$dif1" = "$dif2" ];then
+        echo "$f - same as repo"
+      elif [ "$dif" != "$dif1" -a "$dif1" != "$dif2" -a "$dif" != "$dif2" ];then
+        echo "$f - file changed, different changes staged for commit"
+      elif [ "$dif" = "$dif1" -a "$dif1" != "$dif2" ];then
+        echo "$f - file changed, changes staged for commit"
+      elif [ "$dif" != "$dif1" -a "$dif1" = "$dif2" ];then
+        echo "$f - file changed, changes not staged for commit"
+      fi
+    elif [ ! -f "$f" -a -f ".legit/index/$f" ];then
+      echo "$f - file deleted"
+    elif [ ! -f "$f" -a ! -f ".legit/index/$f" ];then
+      echo "$f - deleted"
+    elif [ -f "$f" -a -f ".legit/index/$f" -a ! -f ".legit/commit/$commits/$f" ];then
+      echo "$f - added to index"
+    fi
+  else
+    #error if do not have any commits
+    echo "legit-status: error: your repository does not have any commits yet"
+  fi
+done < ".legit/status.txt"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#lalala

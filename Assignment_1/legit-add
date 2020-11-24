@@ -1,0 +1,24 @@
+#!/bin/dash
+
+
+if [ -d ".legit" ]; then
+	#make sure all command line files exits
+	for file in "$@";do
+		if [ ! -f "$file" ]; then
+			if [ -f ".legit/index/$file" ];then
+				rm ".legit/index/$file"
+				exit
+			else			
+				echo "legit-add: error: can not open '$file'"
+				exit
+			fi
+		fi
+	done
+	#copy to index
+	for file in "$@";do
+		cp "$file" ".legit/index"
+	done
+#.legit not exissts
+else 
+	echo "legit-add: error: no .legit directory containing legit repository exists"	
+fi

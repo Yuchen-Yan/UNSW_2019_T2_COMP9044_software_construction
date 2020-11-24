@@ -1,0 +1,28 @@
+#!/bin/dash
+
+#get the commit and the file name
+dir=`echo $1|cut -d':' -f1`
+file=`echo $1|cut -d':' -f2`
+
+#if need print the index file
+if test "$dir" = "";then
+	#error if file not exist in index
+	if [ ! -f ".legit/index/$file" ];then
+		echo "legit-show: error: '$file' not found in index"
+		exit
+	fi
+	cat ".legit/index/$file"
+#if need to print the commit file
+
+else
+	#two errors
+	if [ ! -d ".legit/commit/$dir" ];then
+		echo "legit-show: error: unknown commit '$dir'"
+		exit
+	elif [ ! -f ".legit/commit/$dir/$file" ];then
+		echo "legit-show: error: '$file' not found in commit $dir"
+		exit
+	fi
+
+	cat ".legit/commit/$dir/$file"
+fi
